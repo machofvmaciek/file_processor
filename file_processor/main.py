@@ -6,7 +6,7 @@ from typing_extensions import Annotated
 
 from typer import Typer, Option, Argument
 
-from file_processor.file_processor import FileProcessor
+from file_processor.file_processor import FileProcessor, logging_init
 from file_processor.models import Currency
 
 _DEFAULT_DELIMITER = "\n"
@@ -14,12 +14,14 @@ _DEFAULT_LINE_LENGTH = 121
 _DEFAULT_MAX_TRANSACTIONS = 20000
 
 _LOGGER = logging.getLogger("main")
-logging.basicConfig(encoding="utf-8", level=logging.DEBUG)
 
 FILE_PROCESSOR_APP = Typer()
 
 FILE_PROCESSOR_APP_UPDATE = Typer()
 FILE_PROCESSOR_APP.add_typer(FILE_PROCESSOR_APP_UPDATE, name="update")
+
+
+logging_init(file="testlog.log", level=logging.INFO)
 
 # pylint: disable=too-many-arguments, too-many-positional-arguments
 

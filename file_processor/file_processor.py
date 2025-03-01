@@ -9,13 +9,20 @@ from pathlib import Path
 from file_processor.models import Document, Header, Transaction, Footer
 
 _LOGGER = logging.getLogger("file_processor")
-logging.basicConfig(encoding="utf-8", level=logging.INFO)
 
 
-# def logging_init(file: str = None):
-#     """Initializes logging."""
-#     # TODO
-#     pass
+def logging_init(file: str = None, level = logging.INFO) -> None:
+    """Initializes logging."""
+
+    logging.basicConfig(encoding="utf-8", level=level, format="| %(asctime)s - %(levelname)s | %(message)s")
+
+    if file:
+        file_handler = logging.FileHandler(file, encoding="utf-8")
+        file_handler.setLevel(level)
+
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        file_handler.setFormatter(formatter)
+        logging.getLogger().addHandler(file_handler)
 
 
 class ReadingException(Exception):
