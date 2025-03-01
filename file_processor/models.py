@@ -6,14 +6,16 @@ from decimal import Decimal
 from enum import Enum
 from dataclasses import dataclass
 
-from pydantic import BaseModel, Field, field_validator, model_serializer, BeforeValidator
+from pydantic import BaseModel, Field, field_validator, model_serializer
 
 _LOGGER = logging.getLogger("models.py")
 
 DELIMITER = "\n"
 
+# pylint: disable=no-member
 
 class Header(BaseModel):
+    """Represents Header in the Document/file."""
     __lengths = {
         "name": 28,
         "surname": 30,
@@ -27,6 +29,7 @@ class Header(BaseModel):
     patrynomic: str = Field(min_length=1, max_length=__lengths["patrynomic"])
     address: str = Field(min_length=1, max_length=__lengths["address"])
 
+    # pylint: disable=no-self-argument
     @field_validator("name", "surname", "patrynomic", "address")
     def sanitize_strings(cls, value: str) -> str:
         """Strip leading/trailing spaces and title the string."""
@@ -34,6 +37,7 @@ class Header(BaseModel):
 
     @model_serializer
     def render(self) -> str:
+        """Returns the specifically formatted string."""
         return (
             f"{self.field_id}"
             f"{self.name.rjust(self.__lengths['name'])}"
@@ -45,12 +49,14 @@ class Header(BaseModel):
 
 
 class Currency(str, Enum):
+    """Possible values for currency of the Transaction."""
     PLN = "PLN"
     EUR = "EUR"
     USD = "USD"
 
 
 class Transaction(BaseModel):
+    """Represents Transaction in the Document/file."""
     __lengths = {
         "counter": 6,
         "amount": 12,
@@ -78,6 +84,7 @@ class Transaction(BaseModel):
 
     @model_serializer
     def render(self) -> str:
+        """Returns the specifically formatted string."""
         return (
             f"{self.field_id}"
             f"{str(self.counter).rjust(self.__lengths['counter'], '0')}"
@@ -89,6 +96,7 @@ class Transaction(BaseModel):
 
 
 class Footer(BaseModel):
+    """Represents Footer in the Document/file."""
     __lengths = {
         "total_counter": 6,
         "control_sum": 12,
@@ -113,6 +121,7 @@ class Footer(BaseModel):
 
     @model_serializer
     def render(self) -> str:
+        """Returns the specifically formatted string."""
         return (
             f"{self.field_id}"
             f"{str(self.total_counter).rjust(self.__lengths['total_counter'], '0')}"
@@ -129,3 +138,5 @@ class Document:
     header: Header
     transactions: list[Transaction]
     footer: Footer
+
+# pylint: enable=no-member

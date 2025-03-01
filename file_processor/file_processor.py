@@ -4,7 +4,6 @@ import os
 import logging
 
 from decimal import Decimal
-from typing import Optional, Union, IO
 from pathlib import Path
 
 from file_processor.models import Document, Header, Transaction, Footer
@@ -13,24 +12,22 @@ _LOGGER = logging.getLogger("file_processor")
 logging.basicConfig(encoding="utf-8", level=logging.INFO)
 
 
-def logging_init(file: str = None):
-    # TODO
-    pass
+# def logging_init(file: str = None):
+#     """Initializes logging."""
+#     # TODO
+#     pass
 
 
 class ReadingException(Exception):
     """Custom Exception raised when could not read a file."""
-    pass
 
 
 class ValidationException(Exception):
     """Custom Exception raised when validation unsuccessful."""
-    pass
 
 
 class WriteException(Exception):
     """Custom Exception raised when file could not be written."""
-    pass
 
 
 class FileProcessor:

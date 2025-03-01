@@ -1,7 +1,6 @@
 """Module implementing CLI for FileProcessor library."""
 
 import logging
-import typer
 
 from typing_extensions import Annotated
 
@@ -22,6 +21,7 @@ FILE_PROCESSOR_APP = Typer()
 FILE_PROCESSOR_APP_UPDATE = Typer()
 FILE_PROCESSOR_APP.add_typer(FILE_PROCESSOR_APP_UPDATE, name="update")
 
+# pylint: disable=too-many-arguments, too-many-positional-arguments
 
 @FILE_PROCESSOR_APP.command()
 def read(
@@ -32,6 +32,7 @@ def read(
         int, Option(help="Maxiumum number of allowed transactions in the file")
     ] = _DEFAULT_MAX_TRANSACTIONS,
 ) -> None:
+    """Read given file."""
     _LOGGER.debug("file '%s'", file)
     _LOGGER.debug("delimiter '%s'", delimiter)
     _LOGGER.debug("line_length '%s'", line_length)
@@ -54,6 +55,7 @@ def add(
         int, Option(help="Maxiumum number of allowed transactions in the file")
     ] = _DEFAULT_MAX_TRANSACTIONS,
 ) -> None:
+    """Add transaction to given file."""
     _LOGGER.debug("file '%s'", file)
     _LOGGER.debug("amount '%s'", amount)
     _LOGGER.debug("currency '%s'", currency)
@@ -75,6 +77,7 @@ def delete(
         int, Option(help="Maxiumum number of allowed transactions in the file")
     ] = _DEFAULT_MAX_TRANSACTIONS,
 ) -> None:
+    """Delete transaction from given file."""
     _LOGGER.debug("file '%s'", file)
     _LOGGER.debug("id '%s'", id)
     _LOGGER.debug("delimiter '%s'", delimiter)
@@ -100,6 +103,7 @@ def update_transaction(
         int, Option(help="Maxiumum number of allowed transactions in the file")
     ] = _DEFAULT_MAX_TRANSACTIONS,
 ) -> None:
+    """Update target transaction in given file."""
     _LOGGER.debug("file '%s'", file)
     _LOGGER.debug("id '%s'", id)
     _LOGGER.debug("amount '%s'", amount)
@@ -125,6 +129,7 @@ def update_header(
         int, Option(help="Maxiumum number of allowed transactions in the file")
     ] = _DEFAULT_MAX_TRANSACTIONS,
 ) -> None:
+    """Update header in given file."""
     _LOGGER.debug("file '%s'", file)
     _LOGGER.debug("id '%s'", id)
     _LOGGER.debug("name '%s'", name)
@@ -152,3 +157,5 @@ def update_header(
 
 if __name__ == "__main__":
     FILE_PROCESSOR_APP()
+
+# pylint: enable=too-many-arguments, too-many-positional-arguments

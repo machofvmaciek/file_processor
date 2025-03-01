@@ -17,6 +17,7 @@ class TestHeader:
     patrynomic = "The Devil"
     address = "Lux, Los Angeles"
 
+    @staticmethod
     def get_header() -> Header:
         return Header(
             name=TestHeader.name,

@@ -3,10 +3,9 @@
 import copy
 
 from decimal import Decimal
+from unittest.mock import Mock, patch
 
 import pytest
-
-from unittest.mock import Mock, patch
 
 from file_processor.file_processor import FileProcessor, ReadingException, ValidationException, WriteException
 from file_processor.models import Header, Transaction, Footer, Document, Currency
