@@ -1,5 +1,9 @@
 """Text File Patcher."""
 
+# Copyright 2025 by Maciej Olszewski
+# https://github.com/machofvmaciek
+# All rights reserved.
+
 import logging
 
 from decimal import Decimal

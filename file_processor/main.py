@@ -1,5 +1,9 @@
 """Module implementing CLI for FileProcessor library."""
 
+# Copyright 2025 by Maciej Olszewski
+# https://github.com/machofvmaciek
+# All rights reserved.
+
 import logging
 
 from typing_extensions import Annotated

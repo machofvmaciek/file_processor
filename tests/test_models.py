@@ -1,5 +1,9 @@
 """Unit-testing the models."""
 
+# Copyright 2025 by Maciej Olszewski
+# https://github.com/machofvmaciek
+# All rights reserved.
+
 from decimal import Decimal
 
 import pytest

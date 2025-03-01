@@ -1,5 +1,9 @@
 """Module implements a FileProcessor class."""
 
+# Copyright 2025 by Maciej Olszewski
+# https://github.com/machofvmaciek
+# All rights reserved.
+
 import os
 import logging
 

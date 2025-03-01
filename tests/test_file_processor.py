@@ -1,5 +1,9 @@
 """Unit testing the file_processor.py functionalities."""
 
+# Copyright 2025 by Maciej Olszewski
+# https://github.com/machofvmaciek
+# All rights reserved.
+
 import copy
 
 from decimal import Decimal

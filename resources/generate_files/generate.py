@@ -1,5 +1,9 @@
 import os
 
+# Copyright 2025 by Maciej Olszewski
+# https://github.com/machofvmaciek
+# All rights reserved.
+
 def pad_left(value: str, length: int) -> str:
     """
     Pad the given value with leading spaces to match the required length.
