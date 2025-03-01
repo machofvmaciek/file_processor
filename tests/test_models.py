@@ -8,8 +8,10 @@ from pydantic import ValidationError
 
 from file_processor.models import Header, Transaction, Footer
 
+
 class TestHeader:
     """Unit-testing the Header."""
+
     name = "Lucifer"
     surname = "Mornigstar"
     patrynomic = "The Devil"
@@ -22,7 +24,7 @@ class TestHeader:
             patrynomic=TestHeader.patrynomic,
             address=TestHeader.address,
         )
-    
+
     @staticmethod
     def test_init_field_id_defaut_value_success() -> None:
         # Arrange & Act
@@ -49,7 +51,7 @@ class TestHeader:
     def test_init_fields_max_length() -> None:
         # Act & Assert
         with pytest.raises(ValidationError):
-            Header(name=29*"a", surname="", patrynomic="", address="")
+            Header(name=29 * "a", surname="", patrynomic="", address="")
 
     @staticmethod
     def test_sanitize_strings_success() -> None:
@@ -59,7 +61,7 @@ class TestHeader:
         header = Header(
             name=f"  {TestHeader.name}",
             surname=f"  {TestHeader.surname}   ",
-            patrynomic=TestHeader.patrynomic, 
+            patrynomic=TestHeader.patrynomic,
             address=TestHeader.address,
         )
 
@@ -86,8 +88,10 @@ class TestHeader:
 
         assert "\n" in result
 
+
 class TestTransaction:
     """Unit-testing the Transaction"""
+
     counter = 1
     amount = 10.50
     amount_converted = "1050"
@@ -100,7 +104,7 @@ class TestTransaction:
             amount=TestTransaction.amount,
             currency=TestTransaction.currency,
         )
-    
+
     @staticmethod
     def test_init_field_id_defaut_value_success() -> None:
         # Arrange & Act
@@ -126,25 +130,25 @@ class TestTransaction:
         # Counter below minimum
         with pytest.raises(ValidationError):
             Transaction(counter=-10, amount=TestTransaction.amount, currency=TestTransaction.currency)
-        
+
         # Counter over maxiumum
         with pytest.raises(ValidationError):
             Transaction(counter=20001, amount=TestTransaction.amount, currency=TestTransaction.currency)
-        
+
         # Amount below minimum
         with pytest.raises(ValidationError):
             Transaction(counter=TestTransaction.counter, amount=-1, currency=TestTransaction.currency)
 
     @staticmethod
     @pytest.mark.parametrize(
-            "currency,success",
-            [
-                ("PLN", True),
-                ("USD", True),
-                ("EUR", True),
-                ("not_supported", False),
-            ]
-            )
+        "currency,success",
+        [
+            ("PLN", True),
+            ("USD", True),
+            ("EUR", True),
+            ("not_supported", False),
+        ],
+    )
     def test_init_currency_supported(currency: str, success: bool) -> None:
         # Act & Assert
         if success:
@@ -161,7 +165,7 @@ class TestTransaction:
             (5.11, Decimal(5.11)),
             (5.111, Decimal(5.11)),
             (5.16, Decimal(5.20)),
-        ]
+        ],
     )
     def test_round_amount(amount: float, expected: Decimal) -> None:
         # Act
@@ -177,7 +181,7 @@ class TestTransaction:
             (Decimal(5.1), "510"),
             (Decimal(5.11), "511"),
             (Decimal(5.111), "511"),
-        ]
+        ],
     )
     @staticmethod
     def test_amount_to_str(value: Decimal, expected: str) -> None:
@@ -191,7 +195,7 @@ class TestTransaction:
     def test_model_dump_render() -> None:
         # Arrange
         transaction = TestTransaction.get_transaction()
-        whitespaces = 97*(" ")
+        whitespaces = 97 * (" ")
 
         # Act
         result = transaction.model_dump()
@@ -207,8 +211,10 @@ class TestTransaction:
         assert whitespaces in result
         assert "\n" in result
 
+
 class TestFooter:
     """Unit-testing the footer class."""
+
     total_counter = 10
     control_sum = 50.20
     control_sum_converted = "5020"
@@ -216,7 +222,7 @@ class TestFooter:
     @staticmethod
     def get_footer() -> Footer:
         return Footer(total_counter=TestFooter.total_counter, control_sum=TestFooter.control_sum)
-    
+
     @staticmethod
     def test_init_field_id_defaut_value_success() -> None:
         # Arrange & Act
@@ -232,7 +238,7 @@ class TestFooter:
         # Act & Assert
         with pytest.raises(ValidationError):
             footer.field_id = "new_id"
-    
+
     @staticmethod
     def test_init_min_max_values() -> None:
         # Act & Assert
@@ -242,7 +248,7 @@ class TestFooter:
         # Counter below minimum
         with pytest.raises(ValidationError):
             Footer(total_counter=0, control_sum=TestFooter.control_sum)
-        
+
         # total_counter below minimum
         with pytest.raises(ValidationError):
             Footer(total_counter=TestFooter.total_counter, control_sum=-1)
@@ -255,12 +261,11 @@ class TestFooter:
             (5.11, Decimal(5.11)),
             (5.111, Decimal(5.11)),
             (5.16, Decimal(5.20)),
-        ]
+        ],
     )
     def test_round_amount(amount: float, expected: Decimal) -> None:
         # Act
         footer = Footer(total_counter=TestFooter.total_counter, control_sum=amount)
-        
 
         assert footer.control_sum.compare(expected)
 
@@ -272,7 +277,7 @@ class TestFooter:
             (Decimal(5.1), "510"),
             (Decimal(5.11), "511"),
             (Decimal(5.111), "511"),
-        ]
+        ],
     )
     @staticmethod
     def test_amount_to_str(value: Decimal, expected: str) -> None:
@@ -286,7 +291,7 @@ class TestFooter:
     def test_model_dump_render() -> None:
         # Arrange
         footer = TestFooter.get_footer()
-        whitespaces = 100*(" ")
+        whitespaces = 100 * (" ")
 
         # Act
         result = footer.model_dump()
@@ -299,4 +304,3 @@ class TestFooter:
 
         assert whitespaces in result
         assert "\n" in result
-    

@@ -18,36 +18,39 @@ _TEST_FILE_1_TRANSACTION = """
 """
 
 _TEST_FILE_1_TRANSACTION_LINES = [
-    '01                        John                           Doe                         Smith               123 Main Street',
-    '02000001000000000100USD                                                                                                 ',
-    '03000001000000000100'
-    ]
+    "01                        John                           Doe                         Smith               123 Main Street",
+    "02000001000000000100USD                                                                                                 ",
+    "03000001000000000100",
+]
 
-_TEST_FILE_1_TRANSACTION_LINES_TOO_LONG = _TEST_FILE_1_TRANSACTION_LINES + [122*"-"]
-_TEST_FILE_1_TRANSACTION_LINES_INCORRECT_HEADER = [121*"-"] + _TEST_FILE_1_TRANSACTION_LINES[1:]
-_TEST_FILE_1_TRANSACTION_LINES_INCORRECT_FOOTER = _TEST_FILE_1_TRANSACTION_LINES[:2] + [121*"-"]
-_TEST_FILE_1_TRANSACTION_LINES_INCORRECT_TRANSACTION = _TEST_FILE_1_TRANSACTION_LINES[:1] + [121*"-"] + _TEST_FILE_1_TRANSACTION_LINES[2:]
+_TEST_FILE_1_TRANSACTION_LINES_TOO_LONG = _TEST_FILE_1_TRANSACTION_LINES + [122 * "-"]
+_TEST_FILE_1_TRANSACTION_LINES_INCORRECT_HEADER = [121 * "-"] + _TEST_FILE_1_TRANSACTION_LINES[1:]
+_TEST_FILE_1_TRANSACTION_LINES_INCORRECT_FOOTER = _TEST_FILE_1_TRANSACTION_LINES[:2] + [121 * "-"]
+_TEST_FILE_1_TRANSACTION_LINES_INCORRECT_TRANSACTION = (
+    _TEST_FILE_1_TRANSACTION_LINES[:1] + [121 * "-"] + _TEST_FILE_1_TRANSACTION_LINES[2:]
+)
 
 _TEST_FILE_1_TRANSACTION_DOCUMENT = Document(
-    header=Header(field_id='01', name='John', surname='Doe', patrynomic='Smith', address='123 Main Street'),
-    transactions=[Transaction(field_id='02', counter=1, amount=Decimal('1.0'), currency=Currency.USD, reserved=' ')],
-    footer=Footer(field_id='03', total_counter=1, control_sum=Decimal('1.0'), reserved=' ')
+    header=Header(field_id="01", name="John", surname="Doe", patrynomic="Smith", address="123 Main Street"),
+    transactions=[Transaction(field_id="02", counter=1, amount=Decimal("1.0"), currency=Currency.USD, reserved=" ")],
+    footer=Footer(field_id="03", total_counter=1, control_sum=Decimal("1.0"), reserved=" "),
 )
 
 _TEST_FOOTER_MAX_TRANSACTIONS_DOCUMENT = Document(
-    header=Header(field_id='01', name='John', surname='Doe', patrynomic='Smith', address='123 Main Street'),
+    header=Header(field_id="01", name="John", surname="Doe", patrynomic="Smith", address="123 Main Street"),
     transactions=[],
-    footer=Footer(field_id='03', total_counter=20000, control_sum=Decimal('1.0'), reserved=' ')
+    footer=Footer(field_id="03", total_counter=20000, control_sum=Decimal("1.0"), reserved=" "),
 )
 
 _TEST_2_TRANSACTIONS_DOCUMENT = Document(
-    header=Header(field_id='01', name='John', surname='Doe', patrynomic='Smith', address='123 Main Street'),
+    header=Header(field_id="01", name="John", surname="Doe", patrynomic="Smith", address="123 Main Street"),
     transactions=[
-        Transaction(field_id='02', counter=1, amount=Decimal('1.0'), currency=Currency.USD, reserved=' '),
-        Transaction(field_id='02', counter=2, amount=Decimal('2.0'), currency=Currency.USD, reserved=' ')
+        Transaction(field_id="02", counter=1, amount=Decimal("1.0"), currency=Currency.USD, reserved=" "),
+        Transaction(field_id="02", counter=2, amount=Decimal("2.0"), currency=Currency.USD, reserved=" "),
     ],
-    footer=Footer(field_id='03', total_counter=2, control_sum=Decimal('3.0'), reserved=' ')
+    footer=Footer(field_id="03", total_counter=2, control_sum=Decimal("3.0"), reserved=" "),
 )
+
 
 class TestFileProcessor:
     """Unit testing the FileProcessor."""
@@ -55,7 +58,7 @@ class TestFileProcessor:
     @pytest.fixture
     def processor(self) -> FileProcessor:
         return FileProcessor()
-    
+
     def get_document_copy(document: Document) -> Document:
         """Returns a deepcopy of given document, so that the mocks dont overwrite the original objects."""
         return copy.deepcopy(document)
@@ -97,7 +100,7 @@ class TestFileProcessor:
     @staticmethod
     @patch(
         "file_processor.file_processor.FileProcessor._FileProcessor__load_file_lines",
-        Mock(return_value=_TEST_FILE_1_TRANSACTION_LINES)
+        Mock(return_value=_TEST_FILE_1_TRANSACTION_LINES),
     )
     def test_read_validate_success(processor: FileProcessor) -> None:
         # Act & Assert
@@ -106,7 +109,7 @@ class TestFileProcessor:
     @staticmethod
     @patch(
         "file_processor.file_processor.FileProcessor._FileProcessor__load_file_lines",
-        Mock(return_value=_TEST_FILE_1_TRANSACTION_LINES_TOO_LONG)
+        Mock(return_value=_TEST_FILE_1_TRANSACTION_LINES_TOO_LONG),
     )
     def test_read_validate_line_too_long(processor: FileProcessor) -> None:
         # Act & Assert
@@ -120,13 +123,12 @@ class TestFileProcessor:
             (_TEST_FILE_1_TRANSACTION_LINES_INCORRECT_HEADER),
             (_TEST_FILE_1_TRANSACTION_LINES_INCORRECT_FOOTER),
             (_TEST_FILE_1_TRANSACTION_LINES_INCORRECT_TRANSACTION),
-        ]
+        ],
     )
     def test_read_validate_incorrect_ids(processor: FileProcessor, lines: list[str]) -> None:
         # Act & Assert
         with patch(
-            "file_processor.file_processor.FileProcessor._FileProcessor__load_file_lines",
-            Mock(return_value=lines)
+            "file_processor.file_processor.FileProcessor._FileProcessor__load_file_lines", Mock(return_value=lines)
         ):
             with pytest.raises(ValidationException):
                 processor.read("foo.txt")
@@ -134,7 +136,7 @@ class TestFileProcessor:
     @staticmethod
     @patch(
         "file_processor.file_processor.FileProcessor._FileProcessor__load_file_lines",
-        Mock(return_value=_TEST_FILE_1_TRANSACTION_LINES)
+        Mock(return_value=_TEST_FILE_1_TRANSACTION_LINES),
     )
     @patch("file_processor.file_processor.FileProcessor._FileProcessor__validate", Mock())
     def test_read_get_document_success(processor: FileProcessor) -> None:
@@ -146,17 +148,17 @@ class TestFileProcessor:
     @pytest.mark.parametrize("id", [(0), (20001), (2)])
     @patch(
         "file_processor.file_processor.FileProcessor.read",
-        Mock(return_value=get_document_copy(_TEST_FILE_1_TRANSACTION_DOCUMENT))
+        Mock(return_value=get_document_copy(_TEST_FILE_1_TRANSACTION_DOCUMENT)),
     )
     def test_update_transaction_wrong_id(processor: FileProcessor, id: int) -> None:
         # Act & Assert
         with pytest.raises(ValueError):
             processor.update_transaction("foo.txt", id, 0, "USD")
-    
+
     @staticmethod
     @patch(
         "file_processor.file_processor.FileProcessor.read",
-        Mock(return_value=get_document_copy(_TEST_FILE_1_TRANSACTION_DOCUMENT))
+        Mock(return_value=get_document_copy(_TEST_FILE_1_TRANSACTION_DOCUMENT)),
     )
     @patch("file_processor.file_processor.FileProcessor._FileProcessor__write_document_to_file")
     def test_update_transaction_success(mock_write_document: Mock, processor: FileProcessor) -> None:
@@ -167,8 +169,10 @@ class TestFileProcessor:
 
         expected_document = Document(
             header=copy.deepcopy(_TEST_FILE_1_TRANSACTION_DOCUMENT.header),
-            transactions=[Transaction(field_id='02', counter=1, amount=Decimal('5.0'), currency=Currency.USD, reserved=' ')],
-            footer=Footer(field_id='03', total_counter=1, control_sum=Decimal('5.0'), reserved=' ')
+            transactions=[
+                Transaction(field_id="02", counter=1, amount=Decimal("5.0"), currency=Currency.USD, reserved=" ")
+            ],
+            footer=Footer(field_id="03", total_counter=1, control_sum=Decimal("5.0"), reserved=" "),
         )
 
         # Act
@@ -176,25 +180,25 @@ class TestFileProcessor:
 
         # Assert
         mock_write_document.assert_called_once_with(expected_document, "foo.txt")
-    
+
     @staticmethod
     @patch(
         "file_processor.file_processor.FileProcessor.read",
-        Mock(return_value=get_document_copy(_TEST_FILE_1_TRANSACTION_DOCUMENT))
+        Mock(return_value=get_document_copy(_TEST_FILE_1_TRANSACTION_DOCUMENT)),
     )
     @patch("file_processor.file_processor.FileProcessor._FileProcessor__write_document_to_file")
     @pytest.mark.parametrize(
         "kwargs, expected_header",
         [
             (
-                {"name":"Lucifer", "surname":"Morningstar"},
-                Header(name="Lucifer",surname="Morningstar", patrynomic="Smith", address="123 Main Street")
+                {"name": "Lucifer", "surname": "Morningstar"},
+                Header(name="Lucifer", surname="Morningstar", patrynomic="Smith", address="123 Main Street"),
             ),
             (
-                {"name":"Lucifer", "surname":"Morningstar", "patrynomic":"The Devil", "address":"Lux, Los Angeles"},
-                Header(name="Lucifer",surname="Morningstar", patrynomic="The Devil", address="Lux, Los Angeles")
+                {"name": "Lucifer", "surname": "Morningstar", "patrynomic": "The Devil", "address": "Lux, Los Angeles"},
+                Header(name="Lucifer", surname="Morningstar", patrynomic="The Devil", address="Lux, Los Angeles"),
             ),
-        ]
+        ],
     )
     def test_update_header_success(
         mock_write_document: Mock, processor: FileProcessor, kwargs: dict[str, str], expected_header: Header
@@ -224,7 +228,7 @@ class TestFileProcessor:
     @staticmethod
     @patch(
         "file_processor.file_processor.FileProcessor.read",
-        Mock(return_value=get_document_copy(_TEST_FOOTER_MAX_TRANSACTIONS_DOCUMENT))
+        Mock(return_value=get_document_copy(_TEST_FOOTER_MAX_TRANSACTIONS_DOCUMENT)),
     )
     def test_add_transaction_exceeded_max(processor: FileProcessor) -> None:
         # Act & Assert
@@ -234,7 +238,7 @@ class TestFileProcessor:
     @staticmethod
     @patch(
         "file_processor.file_processor.FileProcessor.read",
-        Mock(return_value=get_document_copy(_TEST_2_TRANSACTIONS_DOCUMENT))
+        Mock(return_value=get_document_copy(_TEST_2_TRANSACTIONS_DOCUMENT)),
     )
     @patch("file_processor.file_processor.FileProcessor._FileProcessor__write_document_to_file")
     def test_add_transaction_success(mock_write_document: Mock, processor: FileProcessor) -> None:
@@ -244,9 +248,7 @@ class TestFileProcessor:
 
         # Create a copy of the entry document
         expected_document = copy.deepcopy(_TEST_2_TRANSACTIONS_DOCUMENT)
-        expected_document.transactions.append(
-            Transaction(counter=3, amount=amount, currency=currency)
-        )
+        expected_document.transactions.append(Transaction(counter=3, amount=amount, currency=currency))
         expected_document.footer = Footer(total_counter=3, control_sum=Decimal(6))
 
         # Act
@@ -258,7 +260,7 @@ class TestFileProcessor:
     @staticmethod
     @patch(
         "file_processor.file_processor.FileProcessor.read",
-        Mock(return_value=get_document_copy(_TEST_2_TRANSACTIONS_DOCUMENT))
+        Mock(return_value=get_document_copy(_TEST_2_TRANSACTIONS_DOCUMENT)),
     )
     @pytest.mark.parametrize("id", [(0), (3)])
     def test_delete_transaction_wrong_id(processor: FileProcessor, id: int) -> None:
@@ -269,7 +271,7 @@ class TestFileProcessor:
     @staticmethod
     @patch(
         "file_processor.file_processor.FileProcessor.read",
-        Mock(return_value=get_document_copy(_TEST_2_TRANSACTIONS_DOCUMENT))
+        Mock(return_value=get_document_copy(_TEST_2_TRANSACTIONS_DOCUMENT)),
     )
     @patch("file_processor.file_processor.FileProcessor._FileProcessor__write_document_to_file")
     def test_delete_transaction_success_last_transaction(mock_write_document: Mock, processor: FileProcessor) -> None:
@@ -292,7 +294,7 @@ class TestFileProcessor:
     @staticmethod
     @patch(
         "file_processor.file_processor.FileProcessor.read",
-        Mock(return_value=get_document_copy(_TEST_2_TRANSACTIONS_DOCUMENT))
+        Mock(return_value=get_document_copy(_TEST_2_TRANSACTIONS_DOCUMENT)),
     )
     @patch("file_processor.file_processor.FileProcessor._FileProcessor__write_document_to_file")
     def test_delete_transaction_success_middle_transaction(mock_write_document: Mock, processor: FileProcessor) -> None:

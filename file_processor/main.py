@@ -15,12 +15,13 @@ _DEFAULT_LINE_LENGTH = 121
 _DEFAULT_MAX_TRANSACTIONS = 20000
 
 _LOGGER = logging.getLogger("main")
-logging.basicConfig(encoding='utf-8', level=logging.DEBUG)
+logging.basicConfig(encoding="utf-8", level=logging.DEBUG)
 
 FILE_PROCESSOR_APP = Typer()
 
 FILE_PROCESSOR_APP_UPDATE = Typer()
 FILE_PROCESSOR_APP.add_typer(FILE_PROCESSOR_APP_UPDATE, name="update")
+
 
 @FILE_PROCESSOR_APP.command()
 def read(
@@ -39,6 +40,7 @@ def read(
     processor = FileProcessor(delimiter, line_length, max_transactions)
 
     print(processor.read(file))
+
 
 @FILE_PROCESSOR_APP.command()
 def add(
@@ -62,6 +64,7 @@ def add(
     processor = FileProcessor(delimiter, line_length, max_transactions)
     processor.add_transaction(file, amount, currency)
 
+
 @FILE_PROCESSOR_APP.command()
 def delete(
     file: Annotated[str, Argument(help="File to read")],
@@ -81,13 +84,16 @@ def delete(
     processor = FileProcessor(delimiter, line_length, max_transactions)
     processor.delete_transaction(file, id)
 
+
 @FILE_PROCESSOR_APP_UPDATE.command(name="transaction")
 def update_transaction(
     file: Annotated[str, Argument(help="File to read")],
     id: Annotated[int, Option(help="ID of the transaction to delete.")],
     # Typer does not support Decimal type yet
     amount: Annotated[float, Option("--amount", "-a", help="Amount of transaction to be added")],
-    currency: Annotated[Currency, Option("--currency", "-c", case_sensitive=False, help="Currency of transaction to be added")],
+    currency: Annotated[
+        Currency, Option("--currency", "-c", case_sensitive=False, help="Currency of transaction to be added")
+    ],
     delimiter: Annotated[str, Option(help="Line delimiter used to read the file.")] = _DEFAULT_DELIMITER,
     line_length: Annotated[int, Option(help="Length of each line in given file.")] = _DEFAULT_LINE_LENGTH,
     max_transactions: Annotated[
@@ -104,6 +110,7 @@ def update_transaction(
 
     processor = FileProcessor(delimiter, line_length, max_transactions)
     processor.update_transaction(file, id, amount, currency)
+
 
 @FILE_PROCESSOR_APP_UPDATE.command(name="header")
 def update_header(
@@ -142,7 +149,6 @@ def update_header(
 
     processor.update_header(file, **args)
 
-# TODO: add create()
 
 if __name__ == "__main__":
     FILE_PROCESSOR_APP()

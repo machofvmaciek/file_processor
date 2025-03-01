@@ -9,36 +9,36 @@ from pathlib import Path
 
 from file_processor.models import Document, Header, Transaction, Footer
 
-# read from csv
-# write into csv
-
-# append transactions (UPDATE FOOTER!)
-
 _LOGGER = logging.getLogger("file_processor")
-logging.basicConfig(encoding='utf-8', level=logging.INFO)
+logging.basicConfig(encoding="utf-8", level=logging.INFO)
+
 
 def logging_init(file: str = None):
     # TODO
     pass
 
+
 class ReadingException(Exception):
     """Custom Exception raised when could not read a file."""
     pass
+
 
 class ValidationException(Exception):
     """Custom Exception raised when validation unsuccessful."""
     pass
 
+
 class WriteException(Exception):
     """Custom Exception raised when file could not be written."""
     pass
+
 
 class FileProcessor:
     """Functionalities to read, write and validate a specific text file format."""
 
     def __init__(self, delimiter: str = "\n", line_length: int = 121, max_transactions: int = 20000) -> None:
         """Initializes FileProcessor.
-        
+
         Args:
             delimiter (str): End of line character.
             line_length (int): How long should the lines be.
@@ -48,16 +48,16 @@ class FileProcessor:
         # 120 chars +1 for delimiter
         self.__line_length = line_length
         self.__max_transactions = max_transactions
-    
+
     def __load_file_lines(self, path: str) -> list[str]:
         """Reads the plain text from given path and returns it in format of lines.
-        
+
         Args:
             path (str): path to a file.
 
         Returns:
             List of strings, each containing a separate line of file, without leading and trailing whitespace chars.
-        
+
         Raises:
             ValueError: When empty file was read.
         """
@@ -98,7 +98,7 @@ class FileProcessor:
 
         if not lines[-1].startswith("03"):
             raise ValidationException("Validation failed! Invalid format of last row!")
-        
+
         # +2 for header and footer
         if len(lines) > self.__max_transactions + 2:
             raise ValidationException(
@@ -108,7 +108,7 @@ class FileProcessor:
         # Verify that all transactions between header and footer have '02' prefix
         if not any(x.startswith("02") for x in lines[1:-1]):
             raise ValidationException("Validation failed! Invalid format of a transaction!")
-        
+
         _LOGGER.info("File validation successful!")
 
     def __get_document(self, lines: list[str]) -> Document:
@@ -128,12 +128,12 @@ class FileProcessor:
             )
 
             transactions = []
-            
+
             for line in lines[1:-1]:
                 transactions.append(
                     Transaction(
                         counter=line[2:8],
-                        amount=float(int(line[8:20])/100),
+                        amount=float(int(line[8:20]) / 100),
                         currency=line[20:23],
                     )
                 )
@@ -141,7 +141,7 @@ class FileProcessor:
             footer_line = lines[-1]
             footer = Footer(
                 total_counter=footer_line[2:8],
-                control_sum=float(int(footer_line[8:20])/100),
+                control_sum=float(int(footer_line[8:20]) / 100),
             )
         except Exception as exc:
             _LOGGER.critical("Failed to construct a Document from given text file.")
@@ -163,7 +163,7 @@ class FileProcessor:
 
         for transaction in transactions:
             control_sum += transaction.amount
-        
+
         return Footer(total_counter=len(transactions), control_sum=control_sum)
 
     def read(self, file: str) -> str:
@@ -185,10 +185,10 @@ class FileProcessor:
         self.__validate(lines)
 
         return self.__get_document(lines)
-    
+
     def __write_document_to_file(self, document: Document, file: str) -> None:
         """Writes the given document to a text file under specified path. Overwrites the file.
-        
+
         Args:
             document (Document): Document which will be converted to a text file.
             file (str): Path to a file where document will be saved.
@@ -197,7 +197,7 @@ class FileProcessor:
 
         content = ""
         content += document.header.model_dump()
-        
+
         for transaction in document.transactions:
             content += transaction.model_dump()
 
@@ -210,7 +210,7 @@ class FileProcessor:
 
     def update_transaction(self, file: str, id: int, amount: Decimal, currency: str) -> None:
         """Updates the given transaction in the file.
-        
+
         Args:
             file (str): Path to file.
             id (int): ID of the transaction to modify
@@ -220,32 +220,30 @@ class FileProcessor:
         # Check if given id is greater than zero and between accepted amount of transactions
         if id <= 0 or id > self.__max_transactions:
             raise ValueError(f"'id' must be in a range of [0, {self.__max_transactions})! Got '{id}'.")
-        
+
         document = self.read(file)
 
         # Chek if given id is present in the document
         if id > document.footer.total_counter:
             raise ValueError("'id' not present in the file!")
 
-        new = Transaction(
-            counter=id,
-            amount=amount,
-            currency=currency.upper()
-        )
+        new = Transaction(counter=id, amount=amount, currency=currency.upper())
 
-        target_transaction = document.transactions[id-1]
+        target_transaction = document.transactions[id - 1]
 
         if target_transaction.currency != new.currency:
             _LOGGER.warning(
-                "Changing the currency of transaction with id = '%s' from '%s' to '%s'", 
-                id, target_transaction.currency, new.currency
+                "Changing the currency of transaction with id = '%s' from '%s' to '%s'",
+                id,
+                target_transaction.currency,
+                new.currency,
             )
 
-        document.transactions[id-1] = new
+        document.transactions[id - 1] = new
 
         # Update footer to match new transaction
         document.footer = self.__create_footer(document.transactions)
-        
+
         self.__write_document_to_file(document, file)
         _LOGGER.info("Successfully updated transaction with id = '%s'.", id)
 
@@ -270,7 +268,7 @@ class FileProcessor:
         if not any(attribute_to_value_mapper.values()):
             _LOGGER.debug("Data to update header not provided.")
             return
-        
+
         # Load the document and update it
         document = self.read(file)
         for key, value in attribute_to_value_mapper.items():
@@ -281,9 +279,9 @@ class FileProcessor:
         _LOGGER.info("Successfully updated the header of '%s' file!", file)
 
     def add_transaction(self, file: str, amount: Decimal, currency: str) -> None:
-        """Adds transaction to the file based on given amount and currency. Automatically calculates the index 
+        """Adds transaction to the file based on given amount and currency. Automatically calculates the index
         of transaction. Updates the footer. Check if maxiumum number of transactions was not exceeded.
-        
+
         Args:
             file (str): Path to file.
             amount (Decimal): amount of transaction.
@@ -293,7 +291,7 @@ class FileProcessor:
 
         if document.footer.total_counter == self.__max_transactions:
             raise WriteException(f"Addition failed! Exceeded maximum of '{self.__max_transactions}' transactions.")
-        
+
         new = Transaction(
             counter=document.footer.total_counter + 1,
             amount=amount,
@@ -319,11 +317,11 @@ class FileProcessor:
             raise ValueError(f"'id' must be in a range of [0, {document.footer.total_counter})! Got '{id}'.")
 
         # Delete the selected transaction
-        _LOGGER.debug("Deleting the transaction: '%s'", document.transactions[id-1])
-        document.transactions.pop(id-1)
+        _LOGGER.debug("Deleting the transaction: '%s'", document.transactions[id - 1])
+        document.transactions.pop(id - 1)
 
         # Decrement the ids of all transactions after selected
-        for transaction in document.transactions[id-1:]:
+        for transaction in document.transactions[id - 1 :]:
             transaction.counter -= 1
 
         document.footer = self.__create_footer(document.transactions)
@@ -333,13 +331,13 @@ class FileProcessor:
 
     def create(self, file: str, header: Header, transactions: list[Transaction]) -> None:
         """Create a file based on given header and list of transactions. The footer is created automatically.
-        
+
         Args:
             file (str): Path to file.
             header (Header): Header object containing information about the customer.
             transactions (list[Transaction]): list containing all transactions.
         """
-        
+
         document = Document(
             header=header,
             transactions=transactions,
@@ -350,34 +348,3 @@ class FileProcessor:
             _LOGGER.debug("Overwirting '%s' file!", file)
 
         self.__write_document_to_file(document, file)
-
-proc = FileProcessor()
-# print(proc.read("file.txt"))
-# proc.update("file.txt")
-# transactions = [Transaction(]
-# proc.add_transaction("file.txt", 25, "usd")
-
-# proc.update_header("file.txt", name="Daniel", surname="Espinoza")
-# proc.update_transaction("file.txt", 1, 60, "pln")
-# proc.delete_transaction("file.txt", 3)
-
-# header = Header(
-#     name="Jan",
-#     surname="Kowalski",
-#     patrynomic="Brown",
-#     address="123 Cool Street"
-# )
-
-# transactions = [
-#     Transaction(
-#         counter=1,
-#         amount= 5111.2,
-#         currency="PLN",
-#     ),
-#     Transaction(
-#         counter=2,
-#         amount= 100,
-#         currency="PLN",
-#     ),    
-# ]
-# proc.create("new.txt", header, transactions)
